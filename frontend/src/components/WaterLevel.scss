@@ -1,0 +1,137 @@
+.water-level-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  
+    h2 {
+      margin-bottom: 1.5rem;
+      color: #2d3748;
+      font-size: 1.25rem;
+    }
+  }
+  
+  .level-display {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+  }
+  
+  .level-container {
+    position: relative;
+    width: 80px;
+    height: 200px;
+    background: #f7fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .level-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transition: height 0.5s ease;
+    border-radius: 0 0 6px 6px;
+  
+    &.critical {
+      background: linear-gradient(to top, #e53e3e, #fc8181);
+    }
+  
+    &.low {
+      background: linear-gradient(to top, #dd6b20, #f6ad55);
+    }
+  
+    &.normal {
+      background: linear-gradient(to top, #38a169, #68d391);
+    }
+  
+    &.high {
+      background: linear-gradient(to top, #3182ce, #63b3ed);
+    }
+  }
+  
+  .level-markers {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+  }
+  
+  .marker {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #cbd5e0;
+  
+    span {
+      position: absolute;
+      right: -35px;
+      top: -8px;
+      font-size: 0.75rem;
+      color: #718096;
+      background: white;
+      padding: 0 4px;
+    }
+  }
+  
+  .level-info {
+    flex: 1;
+  }
+  
+  .level-value {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+  }
+  
+  .level-status {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  
+    &.critical {
+      color: #e53e3e;
+    }
+  
+    &.low {
+      color: #dd6b20;
+    }
+  
+    &.normal {
+      color: #38a169;
+    }
+  
+    &.high {
+      color: #3182ce;
+    }
+  }
+  
+  .last-updated {
+    font-size: 0.875rem;
+    color: #718096;
+  }
+  
+  @media (max-width: 480px) {
+    .level-display {
+      flex-direction: column;
+      text-align: center;
+    }
+  
+    .level-container {
+      width: 60px;
+      height: 150px;
+    }
+  
+    .level-value {
+      font-size: 2rem;
+    }
+  }
+  
