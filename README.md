@@ -1,6 +1,7 @@
 # 🌱 Intelligent Monitoring System for Water Reservoirs
 
-![{C9753D52-59B6-41E0-8394-ACBF474CB4D8}](https://github.com/user-attachments/assets/7f169872-ac31-4ca3-85df-dab82b38cd3b)
+![{604C30C3-3C11-4F02-82AE-800226159527}](https://github.com/user-attachments/assets/96f8ba17-6003-4a5c-974e-bfcc6ffcb2f2)
+
 
 ## 📄 Abstract
 
@@ -23,7 +24,7 @@ This project proposes the development of an Intelligent Monitoring System for Wa
 - **Wokwi online simulator**
 - **Microcontroller code**: C++ / Arduino
 - **MQTT Protocol**: HiveMQ broker (via Wi-Fi)
-- **Visualization**: MQTT Dashboard
+- **Visualization**: React + WebSocket
 
 ---
 
