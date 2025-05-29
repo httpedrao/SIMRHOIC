@@ -1,3 +1,5 @@
+import "./WaterLevel.scss"
+
 const WaterLevel = ({ level, timestamp }) => {
     const getStatusClass = (level) => {
       if (level < 20) return "critical"
@@ -7,10 +9,10 @@ const WaterLevel = ({ level, timestamp }) => {
     }
   
     const getStatusText = (level) => {
-      if (level < 20) return "Critical"
-      if (level < 40) return "Low"
+      if (level < 20) return "Crítico"
+      if (level < 40) return "Baixo"
       if (level < 80) return "Normal"
-      return "High"
+      return "Alto"
     }
   
     const getStatusColor = (level) => {
@@ -82,50 +84,36 @@ const WaterLevel = ({ level, timestamp }) => {
       flex: 1,
     }
   
+    const statusClass = getStatusClass(level)
+  
     return (
-      <div style={cardStyles}>
-        <h2 style={{ marginBottom: "1.5rem", color: "#2d3748", fontSize: "1.25rem" }}>Water Level</h2>
-        <div style={displayStyles}>
-          <div style={containerStyles}>
-            <div style={fillStyles} />
-            <div style={markersStyles}>
+      <div className="water-level">
+        <h2 className="water-level__title">Nível da Água</h2>
+        <div className="water-level__display">
+          <div className="water-level__container">
+            <div 
+              className={`water-level__fill water-level__fill--${statusClass}`} 
+              style={{ height: `${Math.min(level, 100)}%` }} 
+            />
+            <div className="water-level__markers">
               {[100, 80, 60, 40, 20, 0].map((mark) => (
-                <div key={mark} style={{ ...markerStyles, bottom: `${mark}%` }}>
-                  <span
-                    style={{
-                      position: "absolute",
-                      right: "-35px",
-                      top: "-8px",
-                      fontSize: "0.75rem",
-                      color: "#718096",
-                      background: "white",
-                      padding: "0 4px",
-                    }}
-                  >
+                <div key={mark} className="water-level__marker" style={{ bottom: `${mark}%` }}>
+                  <span className="water-level__marker-label">
                     {mark}%
                   </span>
                 </div>
               ))}
             </div>
           </div>
-          <div style={infoStyles}>
-            <div style={{ fontSize: "3rem", fontWeight: "bold", color: "#2d3748", marginBottom: "0.5rem" }}>
+          <div className="water-level__info">
+            <div className="water-level__value">
               {level.toFixed(1)}%
             </div>
-            <div
-              style={{
-                fontSize: "1.125rem",
-                fontWeight: 600,
-                marginBottom: "1rem",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-                color: getStatusColor(level),
-              }}
-            >
+            <div className={`water-level__status water-level__status--${statusClass}`}>
               {getStatusText(level)}
             </div>
-            <div style={{ fontSize: "0.875rem", color: "#718096" }}>
-              Last updated: {new Date(timestamp).toLocaleTimeString()}
+            <div className="water-level__timestamp">
+              Última atualização: {new Date(timestamp).toLocaleTimeString()}
             </div>
           </div>
         </div>

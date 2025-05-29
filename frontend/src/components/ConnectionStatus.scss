@@ -1,47 +1,58 @@
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
 .connection-status {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.875rem;
-    font-weight: 500;
-  
-    &.connected {
-      background: rgba(72, 187, 120, 0.2);
-      color: #22543d;
-  
-      .status-indicator {
-        background: #48bb78;
-      }
-    }
-  
-    &.disconnected {
-      background: rgba(229, 62, 62, 0.2);
-      color: #742a2a;
-  
-      .status-indicator {
-        background: #e53e3e;
-      }
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  &--connected {
+    background: rgba(72, 187, 120, 0.2);
+    color: #22543d;
+
+    .connection-status__indicator {
+      background: #48bb78;
     }
   }
-  
-  .status-indicator {
+
+  &--disconnected {
+    background: rgba(229, 62, 62, 0.2);
+    color: #742a2a;
+
+    .connection-status__indicator {
+      background: #e53e3e;
+    }
+  }
+
+  &__indicator {
     width: 8px;
     height: 8px;
     border-radius: 50%;
     animation: pulse 2s infinite;
   }
-  
-  @keyframes pulse {
-    0% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.5;
-    }
-    100% {
-      opacity: 1;
+
+  &__text {
+    color: white;
+    // No specific styles needed, inherits from parent
+  }
+}
+
+@media (max-width: 768px) {
+  .connection-status {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+
+    &__indicator {
+      width: 6px;
+      height: 6px;
     }
   }
+}
   

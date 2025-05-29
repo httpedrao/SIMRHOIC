@@ -5,6 +5,7 @@ import mqtt from "mqtt"
 import WaterLevel from "./components/WaterLevel"
 import WaterQuality from "./components/WaterQuality"
 import ConnectionStatus from "./components/ConnectionStatus"
+import "./App.scss"
 
 function App() {
   const [client, setClient] = useState(null)
@@ -38,7 +39,7 @@ function App() {
         topic: topic
       }
       localStorage.setItem(storageKey, JSON.stringify(data))
-      
+
       // Also save to a general log
       const logKey = 'mqtt_message_log'
       const existingLog = JSON.parse(localStorage.getItem(logKey) || '[]')
@@ -46,7 +47,7 @@ function App() {
       // Keep only last 1000 messages
       const trimmedLog = existingLog.slice(0, 1000)
       localStorage.setItem(logKey, JSON.stringify(trimmedLog))
-      
+
       console.log(`💾 Saved to localStorage: ${topic} = ${value}`)
     } catch (error) {
       console.error('❌ Error saving to localStorage:', error)
@@ -59,7 +60,7 @@ function App() {
       const level = localStorage.getItem('mqtt_simrhoic_water_level')
       const tds = localStorage.getItem('mqtt_simrhoic_water_tds')
       const ph = localStorage.getItem('mqtt_simrhoic_water_ph')
-      
+
       const data = {
         battery: battery ? JSON.parse(battery) : null,
         level: level ? JSON.parse(level) : null,
@@ -67,9 +68,9 @@ function App() {
         ph: ph ? JSON.parse(ph) : null,
         lastUpdated: new Date().toISOString()
       }
-      
+
       setSensorData(data)
-      
+
       // Update waterData for UI components
       if (data.level) {
         setWaterData(prev => ({
@@ -78,7 +79,7 @@ function App() {
           timestamp: data.level.timestamp
         }))
       }
-      
+
       console.log('📂 Loaded data from localStorage:', data)
       return data
     } catch (error) {
@@ -161,9 +162,9 @@ function App() {
 
       // Add to messages log with enhanced information
       setMessages((prev) => [
-        { 
-          topic, 
-          message: messageStr, 
+        {
+          topic,
+          message: messageStr,
           timestamp,
           size: messageSize,
           id: Math.random().toString(36).substr(2, 9)
@@ -178,10 +179,10 @@ function App() {
       if (topic.startsWith("simrhoic/water/")) {
         const sensorType = topic.split("/")[2] // battery, level, or tds
         const numValue = parseFloat(messageStr)
-        
+
         if (!isNaN(numValue)) {
           console.log(`🔢 Parsed ${sensorType}: ${numValue}`)
-          
+
           // Update sensor data state
           setSensorData(prev => ({
             ...prev,
@@ -192,7 +193,7 @@ function App() {
             },
             lastUpdated: timestamp
           }))
-          
+
           // Update waterData for UI components based on sensor type
           if (sensorType === "level") {
             setWaterData((prev) => ({
@@ -251,11 +252,11 @@ function App() {
         } catch (error) {
           // If not JSON, treat as plain text/number
           console.log("📝 Plain text/number data:", messageStr)
-          
+
           const numValue = parseFloat(messageStr)
           if (!isNaN(numValue)) {
             console.log("🔢 Parsed as number:", numValue)
-            
+
             if (topic === "water/level") {
               setWaterData((prev) => ({
                 ...prev,
@@ -307,136 +308,86 @@ function App() {
     }
   }, [])
 
-  const appStyles = {
-    minHeight: "100vh",
-    display: "flex",
-    flexDirection: "column",
-    fontFamily:
-      '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
-    backgroundColor: "#f5f7fa",
-    color: "#333",
-    margin: 0,
-    padding: 0,
-  }
-
-  const headerStyles = {
-    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-    color: "white",
-    padding: "1.5rem 2rem",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
-  }
-
-  const mainStyles = {
-    flex: 1,
-    padding: "2rem",
-    maxWidth: "1200px",
-    margin: "0 auto",
-    width: "100%",
-  }
-
-  const gridStyles = {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
-    gap: "2rem",
-    marginBottom: "2rem",
-  }
-
-  const messagesSectionStyles = {
-    background: "white",
-    borderRadius: "12px",
-    padding: "1.5rem",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.05)",
-  }
-
-  const messagesContainerStyles = {
-    maxHeight: "300px",
-    overflowY: "auto",
-    border: "1px solid #e2e8f0",
-    borderRadius: "8px",
-    padding: "0.5rem",
-  }
-
-  const messageItemStyles = {
-    display: "grid",
-    gridTemplateColumns: "150px 1fr 80px auto",
-    gap: "1rem",
-    padding: "0.75rem",
-    borderBottom: "1px solid #f7fafc",
-    fontSize: "0.875rem",
-  }
-
-  const noMessagesStyles = {
-    textAlign: "center",
-    color: "#718096",
-    padding: "2rem",
-    fontStyle: "italic",
-  }
-
   return (
-    <div style={appStyles}>
-      <header style={headerStyles}>
-        <h1 style={{ fontSize: "2rem", fontWeight: 600, margin: 0 }}>Water Monitoring System</h1>
+    <div className="app">
+      <header className="app-header">
+        <h1>Sistema de Monitoramento de Água</h1>
         <ConnectionStatus isConnected={isConnected} />
       </header>
 
-      <main style={mainStyles}>
-        <div style={gridStyles}>
+      <main className="app-main">
+        <div className="monitoring-grid">
           <WaterLevel level={waterData.level} timestamp={waterData.timestamp} />
           <WaterQuality quality={waterData.quality} timestamp={waterData.timestamp} />
-          
+
           {/* Sensor Data Panel */}
-          <div style={{
-            background: "white",
-            borderRadius: "12px",
-            padding: "1.5rem",
-            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.05)",
-          }}>
-            <h3 style={{ marginBottom: "1rem", color: "#2d3748", fontSize: "1.25rem" }}>
-              🔋 Sensor Readings
+          <div className="sensor-panel">
+            <h3 className="sensor-panel__title">
+              🔋 Leituras dos Sensores
             </h3>
-            <div style={{ display: "grid", gap: "1rem" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.75rem", backgroundColor: "#f7fafc", borderRadius: "8px" }}>
-                <span style={{ fontWeight: 600, color: "#4a5568" }}>Battery Voltage:</span>
-                <span style={{ color: "#2d3748", fontFamily: "Courier New, monospace" }}>
-                  {sensorData.battery ? `${sensorData.battery.value}V` : "No data"}
+            <div className="sensor-panel__grid">
+              <div className="sensor-item">
+                <span className="sensor-item__label">Tensão da Bateria:</span>
+                <span className="sensor-item__value">
+                  {sensorData.battery ? `${sensorData.battery.value}V` : "Sem dados"}
                 </span>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.75rem", backgroundColor: "#f7fafc", borderRadius: "8px" }}>
-                <span style={{ fontWeight: 600, color: "#4a5568" }}>Water Level:</span>
-                <span style={{ color: "#2d3748", fontFamily: "Courier New, monospace" }}>
-                  {sensorData.level ? `${sensorData.level.value} cm` : "No data"}
-                </span>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.75rem", backgroundColor: "#f7fafc", borderRadius: "8px" }}>
-                <span style={{ fontWeight: 600, color: "#4a5568" }}>TDS Value:</span>
-                <span style={{ color: "#2d3748", fontFamily: "Courier New, monospace" }}>
-                  {sensorData.tds ? `${sensorData.tds.value} ppm` : "No data"}
-                </span>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.75rem", backgroundColor: "#f7fafc", borderRadius: "8px" }}>
-                <span style={{ fontWeight: 600, color: "#4a5568" }}>pH Value:</span>
-                <span style={{ color: "#2d3748", fontFamily: "Courier New, monospace" }}>
-                  {sensorData.ph ? `${parseFloat(sensorData.ph.value).toFixed(2)}` : "No data"}
+              <div className="sensor-item">
+                <span className="sensor-item__label">Nível da Água:</span>
+                <span className="sensor-item__value">
+                  {sensorData.level ? `${sensorData.level.value} cm` : "Sem dados"}
                 </span>
               </div>
               {sensorData.lastUpdated && (
-                <div style={{ textAlign: "center", fontSize: "0.875rem", color: "#718096", marginTop: "0.5rem" }}>
-                  Last updated: {new Date(sensorData.lastUpdated).toLocaleString()}
+                <div className="sensor-panel__last-updated">
+                  Última atualização: {new Date(sensorData.lastUpdated).toLocaleString()}
                 </div>
               )}
             </div>
           </div>
         </div>
 
+        <section className="messages-section">
+          <h2>📨 Mensagens MQTT Recentes ({messages.length}/100)</h2>
+          <div className="messages-container">
+            {messages.length === 0 ? (
+              <p className="no-messages">Nenhuma mensagem recebida ainda...</p>
+            ) : (
+              <>
+                <div className="message-header">
+                  <span>Tópico</span>
+                  <span>Valor</span>
+                  <span className="message-header__size">Tamanho</span>
+                  <span>Hora</span>
+                </div>
+                {messages.map((msg, index) => (
+                  <div
+                    key={msg.id || index}
+                    className={`message-item ${index % 2 === 0 ? 'message-item--even' : ''}`}
+                  >
+                    <span className="message-item__topic">
+                      {msg.topic}
+                    </span>
+                    <span className="message-item__content">
+                      {msg.message}
+                    </span>
+                    <span className="message-item__size">
+                      {msg.size || 0}B
+                    </span>
+                    <span className="message-item__time">
+                      {new Date(msg.timestamp).toLocaleTimeString()}
+                    </span>
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+        </section>
+
         {/* LocalStorage Management */}
-        <section style={messagesSectionStyles}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-            <h2 style={{ color: "#2d3748", fontSize: "1.25rem", margin: 0 }}>
-              💾 Data Storage & Messages
-            </h2>
+        <section className="messages-section">
+          <div className="storage-header">
+            <h2>💾 Armazenamento de Dados e Mensagens</h2>
             <button
               onClick={() => {
                 localStorage.clear()
@@ -450,76 +401,17 @@ function App() {
                 setMessages([])
                 console.log("🗑️ Cleared all localStorage data")
               }}
-              style={{
-                padding: "0.5rem 1rem",
-                backgroundColor: "#e53e3e",
-                color: "white",
-                border: "none",
-                borderRadius: "6px",
-                cursor: "pointer",
-                fontSize: "0.875rem"
-              }}
+              className="clear-storage-btn"
             >
-              Clear Storage
+              Limpar Armazenamento
             </button>
           </div>
-          <div style={{ marginBottom: "1rem", padding: "1rem", backgroundColor: "#f7fafc", borderRadius: "8px" }}>
-            <div style={{ fontSize: "0.875rem", color: "#4a5568" }}>
-              <strong>Storage Status:</strong> {Object.keys(localStorage).filter(key => key.startsWith('mqtt_')).length} stored items | 
-              Auto-refresh every 5 seconds | 
-              Max 1000 messages in log
+          <div className="storage-status">
+            <div className="storage-status__text">
+              <strong>Status do Armazenamento:</strong> {Object.keys(localStorage).filter(key => key.startsWith('mqtt_')).length} itens armazenados |
+              Atualização automática a cada 5 segundos |
+              Máximo de 1000 mensagens no log
             </div>
-          </div>
-        </section>
-
-        <section style={messagesSectionStyles}>
-          <h2 style={{ marginBottom: "1rem", color: "#2d3748", fontSize: "1.25rem" }}>
-            📨 Recent MQTT Messages ({messages.length}/100)
-          </h2>
-          <div style={messagesContainerStyles}>
-            {messages.length === 0 ? (
-              <p style={noMessagesStyles}>No messages received yet...</p>
-            ) : (
-              <>
-                <div style={{
-                  ...messageItemStyles,
-                  backgroundColor: "#e2e8f0",
-                  fontWeight: "bold",
-                  borderBottom: "2px solid #cbd5e0",
-                  position: "sticky",
-                  top: 0,
-                  zIndex: 1
-                }}>
-                  <span>Topic</span>
-                  <span>Message</span>
-                  <span style={{ textAlign: "center" }}>Size</span>
-                  <span>Time</span>
-                </div>
-                {messages.map((msg, index) => (
-                <div
-                  key={msg.id || index}
-                  style={{
-                    ...messageItemStyles,
-                    borderBottom: index === messages.length - 1 ? "none" : "1px solid #f7fafc",
-                    backgroundColor: index % 2 === 0 ? "#f8f9fa" : "white",
-                  }}
-                >
-                  <span style={{ fontWeight: 600, color: "#4a5568", fontFamily: "Courier New, monospace" }}>
-                    {msg.topic}
-                  </span>
-                  <span style={{ color: "#2d3748", wordBreak: "break-word", fontFamily: "Courier New, monospace" }}>
-                    {msg.message}
-                  </span>
-                  <span style={{ color: "#718096", fontSize: "0.75rem", textAlign: "center" }}>
-                    {msg.size || 0}B
-                  </span>
-                  <span style={{ color: "#718096", fontSize: "0.75rem", whiteSpace: "nowrap" }}>
-                    {new Date(msg.timestamp).toLocaleTimeString()}
-                  </span>
-                </div>
-                ))}
-              </>
-            )}
           </div>
         </section>
       </main>

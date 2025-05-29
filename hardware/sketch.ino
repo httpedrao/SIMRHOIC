@@ -7,7 +7,8 @@
 #define BUZZER_PIN       19
 #define TDS_SENSOR_PIN   34  // Potentiometer for TDS simulation
 #define PH_SENSOR_PIN    32  // Potentiometer for pH simulation
-#define WATER_LEVEL_PIN  33  // Potentiometer for water level simulation
+#define WATER_LEVEL_TRIG_PIN  25  // Ultrasonic sensor trigger pin
+#define WATER_LEVEL_ECHO_PIN  26  // Ultrasonic sensor echo pin
 #define BATTERY_PIN      35  // Potentiometer for battery voltage simulation
 
 // WiFi credentials (simulated for Wokwi)
@@ -27,7 +28,8 @@ PubSubClient mqttClient(espClient);
 // === Constants ===
 const float LOW_BATTERY_THRESHOLD = 3.0;
 const int TDS_ALERT_THRESHOLD = 700;
-const float LOW_WATER_LEVEL_CM = 30.0;
+const float TANK_HEIGHT_CM = 100.0;  // Total height of water tank in cm
+const float LOW_WATER_LEVEL_THRESHOLD = 20.0;  // Alert when water level below 20cm
 const float PH_LOW_THRESHOLD = 6.0;
 const float PH_HIGH_THRESHOLD = 8.5;
 
@@ -36,6 +38,8 @@ void setup() {
   Serial.begin(115200);
 
   pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(WATER_LEVEL_TRIG_PIN, OUTPUT);
+  pinMode(WATER_LEVEL_ECHO_PIN, INPUT);
   
   // Set analog read resolution to 12-bit for better precision
   analogReadResolution(12);
@@ -194,9 +198,40 @@ float readPHValue() {
 }
 
 float readWaterLevel() {
-  int raw = analogRead(WATER_LEVEL_PIN);
-  // Convert 12-bit ADC reading to water level distance (5-50 cm range)
-  return 5.0 + ((raw / 4095.0) * 45.0); // Scale to 5-50 cm range
+  // Send a 10μs pulse to trigger pin
+  digitalWrite(WATER_LEVEL_TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(WATER_LEVEL_TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(WATER_LEVEL_TRIG_PIN, LOW);
+  
+  // Read the echo pin and calculate distance
+  long duration = pulseIn(WATER_LEVEL_ECHO_PIN, HIGH, 30000); // 30ms timeout
+  
+  if (duration == 0) {
+    // Timeout occurred, return a safe default value
+    Serial.println("⚠️ Warning: Ultrasonic sensor timeout");
+    return 0.0; // Assume no water on timeout
+  }
+  
+  // Calculate distance to water surface in cm (speed of sound = 343 m/s = 0.0343 cm/μs)
+  // Distance = (duration * speed of sound) / 2 (divide by 2 for round trip)
+  float distanceToWater = (duration * 0.0343) / 2;
+  
+  // Constrain distance to reasonable range (2-400 cm for HC-SR04)
+  distanceToWater = constrain(distanceToWater, 2.0, 400.0);
+  
+  // Convert distance to actual water level
+  // Water level = Tank height - Distance to water surface
+  float waterLevel = TANK_HEIGHT_CM - distanceToWater;
+  
+  // Ensure water level is not negative (sensor might be reading beyond tank height)
+  waterLevel = max(waterLevel, 0.0f);
+  
+  // Ensure water level doesn't exceed tank height
+  waterLevel = min(waterLevel, TANK_HEIGHT_CM);
+  
+  return waterLevel;
 }
 
 // === Output Functions ===
@@ -205,7 +240,8 @@ void displaySensorData(float battery, int tds, float ph, float level) {
   Serial.print("Battery Voltage: "); Serial.print(battery, 2); Serial.println(" V");
   Serial.print("TDS Value: "); Serial.print(tds); Serial.println(" ppm");
   Serial.print("pH Value: "); Serial.print(ph, 2); Serial.println("");
-  Serial.print("Water Level Distance: "); Serial.print(level, 2); Serial.println(" cm");
+  Serial.print("Water Level: "); Serial.print(level, 2); Serial.print(" cm ("); 
+  Serial.print((level/TANK_HEIGHT_CM)*100, 1); Serial.println("% full)");
 }
 
 // === Alert System ===
@@ -229,8 +265,10 @@ void handleAlerts(float battery, int tds, float ph, float level) {
     tone(BUZZER_PIN, 659, 150);
     alertTriggered = true;
   }
-  else if (level > LOW_WATER_LEVEL_CM) {
-    Serial.println("⚠️ ALERT: Low water level!");
+  else if (level < LOW_WATER_LEVEL_THRESHOLD) {
+    Serial.print("⚠️ ALERT: Low water level (");
+    Serial.print(level, 1);
+    Serial.println(" cm)!");
     tone(BUZZER_PIN, 262, 100);
     alertTriggered = true;
   }
