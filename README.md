@@ -15,15 +15,15 @@ This project proposes the development of an Intelligent Monitoring System for Wa
 - 📏 **HC-SR04** Ultrasonic Sensor (for water level)
 - ⚡ **Potentiometers** (simulate TDS/pH and battery level)
 - 🔔 **Piezo Buzzer** (audible alerts)
-- ☀️ (Simulated) Solar panel and battery system
+- ☀️ Simulated Battery system
 
 ---
 
 ## 🧰 Software Stack
 
 - **Wokwi online simulator**
-- **Microcontroller code**: C++ / Arduino
-- **MQTT Protocol**: HiveMQ broker (via Wi-Fi)
+- **Microcontroller code**: Arduino
+- **MQTT Protocol**: HiveMQ broker (via Wi-Fi simulation)
 - **Visualization**: React + WebSocket
 
 ---
